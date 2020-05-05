@@ -16,7 +16,13 @@
         <module>gulimall-order</module>
         <module>gulimall-coupon</module>
         <module>gulimall-member</module>
+        <module>renren-fast</module>
+        <module>renren-generator</module>
+        <module>gulimall-common</module>
     </modules>
-
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
 </project>
