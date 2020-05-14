@@ -1,0 +1,48 @@
+
+
+spring:
+  application:
+    name: gulimall-gateway
+  profiles:
+    active: dev # 表示去拉开发环境的配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.2.13:8848
+      config:
+        server-addr: 192.168.2.13:8848
+        file-extension: yaml
+        namespace: gateway
+    gateway:
+      routes:
+        - id: gulimall_product
+          uri: lb://gulimall-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
+        # 这个路由放最后，不然会覆盖前面的
+        - id: admin_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}
+
+# 前端发送请求是 http://192.168.2.13:20088/api/captcha.jpg
+# renren-fast 需要的路径是 http://192.168.2.13:28080/renren-fast/captcha.jpg
+# 因此需要转换 使用 filter 的 rewritePath
+
+#    gateway:
+#      routes:
+#        - id: route_baidu
+#          uri: https://www.baidu.com
+#          predicates:
+#            - Query=url,baidu
+#        - id: route_qq
+#          uri: https://www.qq.com
+#          predicates:
+#            - Query=url,qq
+#server:
+#  port: 20088
+debug: true
