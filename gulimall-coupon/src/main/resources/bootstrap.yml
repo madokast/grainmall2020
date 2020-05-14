@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: gulimall-coupon
+  profiles:
+    active: dev # 表示去拉开发环境的配置
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.2.13:8848
+        file-extension: yaml
+        ext-config:
+          - data-id: common.yaml
+            namespace: public
+            group: DEFAULT_GROUP
+            refresh: true

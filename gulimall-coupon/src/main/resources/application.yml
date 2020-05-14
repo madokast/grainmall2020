@@ -1,4 +1,10 @@
 spring:
+  application:
+    name: gulimall-coupon
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.2.13:8848
   datasource:
     username: root
     password: 123456
@@ -13,3 +19,4 @@ mybatis-plus:
       id-type: auto
 server:
   port: 35500
+

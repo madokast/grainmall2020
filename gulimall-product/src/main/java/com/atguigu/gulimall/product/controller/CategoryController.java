@@ -1,8 +1,10 @@
 package com.atguigu.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,7 +16,6 @@ import com.atguigu.gulimall.product.entity.CategoryEntity;
 import com.atguigu.gulimall.product.service.CategoryService;
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.R;
-
 
 
 /**
@@ -31,11 +32,26 @@ public class CategoryController {
     private CategoryService categoryService;
 
     /**
+     * 2020年5月7日
+     *
+     * @return 查出所有分类，以树形结构组装
+     * @see CategoryService#listWithTree()
+     */
+    @RequestMapping("/list/tree")
+    public R listTree() {
+        // all
+        List<CategoryEntity> listWithTree = categoryService.listWithTree();
+
+        return R.ok().put("data", listWithTree);
+    }
+
+
+    /**
      * 列表
      */
     @RequestMapping("/list")
     //@RequiresPermissions("product:category:list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = categoryService.queryPage(params);
 
         return R.ok().put("page", page);
@@ -47,8 +63,8 @@ public class CategoryController {
      */
     @RequestMapping("/info/{catId}")
     //@RequiresPermissions("product:category:info")
-    public R info(@PathVariable("catId") Long catId){
-		CategoryEntity category = categoryService.getById(catId);
+    public R info(@PathVariable("catId") Long catId) {
+        CategoryEntity category = categoryService.getById(catId);
 
         return R.ok().put("category", category);
     }
@@ -58,10 +74,13 @@ public class CategoryController {
      */
     @RequestMapping("/save")
     //@RequiresPermissions("product:category:save")
-    public R save(@RequestBody CategoryEntity category){
-		categoryService.save(category);
+    public R save(@RequestBody CategoryEntity category) {
+        if (categoryService.save(category)) {
+            return R.ok();
+        }else {
+            return R.error(HttpStatus.SC_BAD_REQUEST,"新增失败");
+        }
 
-        return R.ok();
     }
 
     /**
@@ -69,21 +88,35 @@ public class CategoryController {
      */
     @RequestMapping("/update")
     //@RequiresPermissions("product:category:update")
-    public R update(@RequestBody CategoryEntity category){
-		categoryService.updateById(category);
-
-        return R.ok();
+    public R update(@RequestBody CategoryEntity category) {
+        if (categoryService.updateById(category)) {
+            return R.ok();
+        }else {
+            return R.error(HttpStatus.SC_BAD_REQUEST,"修改失败");
+        }
     }
 
     /**
-     * 删除
+     * 删除 CategoryEntity 以 catId
+     * 只有当所有的 catIds 全部都满足删除条件————即没有子分类时，才会删除
+     * 只要有一个不满足，就不会执行
+     *
+     * @RequestBody 来自请求体，以此方法只接受 post 请求
+     * 可以是 json 格式
      */
     @RequestMapping("/delete")
     //@RequiresPermissions("product:category:delete")
-    public R delete(@RequestBody Long[] catIds){
-		categoryService.removeByIds(Arrays.asList(catIds));
+    public R delete(@RequestBody Long[] catIds) {
 
-        return R.ok();
+        // 此方法调用时不加检查，不能用
+        // categoryService.removeByIds(Arrays.asList(catIds));
+
+        if (categoryService.removeMenuByIds(Arrays.asList(catIds))) {
+            return R.ok();
+        } else {
+            return R.error(HttpStatus.SC_BAD_REQUEST,"删除失败");
+        }
+
     }
 
 }

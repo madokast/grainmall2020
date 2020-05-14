@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.2.13:8848
+      config:
+        server-addr: 192.168.2.13:8848
+        file-extension: yaml
+        namespace: product
+  application:
+    name: gulimall-product

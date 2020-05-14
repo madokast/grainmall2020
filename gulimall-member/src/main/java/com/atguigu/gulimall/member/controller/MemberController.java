@@ -3,6 +3,7 @@ package com.atguigu.gulimall.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.atguigu.gulimall.member.feign.CouponFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +30,69 @@ import com.atguigu.common.utils.R;
 public class MemberController {
     @Autowired
     private MemberService memberService;
+
+    @Autowired
+    private CouponFeignService couponFeignService;
+
+    @RequestMapping("/coupons")
+    public R coupons(){
+        MemberEntity memberEntity = new MemberEntity();
+        memberEntity.setNickname("张三");
+
+        R r = couponFeignService.memberCoupons();
+        Object coupons = r.get("coupons");
+
+        return R.ok().put("menmer",memberEntity).put("coupons",coupons);
+
+        //{
+        //    "msg": "success",
+        //    "code": 0,
+        //    "coupons": [
+        //        {
+        //            "id": null,
+        //            "couponType": null,
+        //            "couponImg": null,
+        //            "couponName": "满100减10",
+        //            "num": null,
+        //            "amount": null,
+        //            "perLimit": null,
+        //            "minPoint": null,
+        //            "startTime": null,
+        //            "endTime": null,
+        //            "useType": null,
+        //            "note": null,
+        //            "publishCount": null,
+        //            "useCount": null,
+        //            "receiveCount": null,
+        //            "enableStartTime": null,
+        //            "enableEndTime": null,
+        //            "code": null,
+        //            "memberLevel": null,
+        //            "publish": null
+        //        }
+        //    ],
+        //    "menmer": {
+        //        "id": null,
+        //        "levelId": null,
+        //        "username": null,
+        //        "password": null,
+        //        "nickname": "张三",
+        //        "mobile": null,
+        //        "email": null,
+        //        "header": null,
+        //        "gender": null,
+        //        "birth": null,
+        //        "city": null,
+        //        "job": null,
+        //        "sign": null,
+        //        "sourceType": null,
+        //        "integration": null,
+        //        "growth": null,
+        //        "status": null,
+        //        "createTime": null
+        //    }
+        //}
+    }
 
     /**
      * 列表
