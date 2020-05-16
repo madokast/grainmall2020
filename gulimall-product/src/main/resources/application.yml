@@ -15,3 +15,10 @@
 #
 #server:
 #  port: 35200
+
+#ali:
+#  ram:
+#    AccessKey-ID: XXX
+#    AccessKey-Secret: XXX
+#  oss:
+#    endpoint: oss-cn-shenzhen.aliyuncs.com

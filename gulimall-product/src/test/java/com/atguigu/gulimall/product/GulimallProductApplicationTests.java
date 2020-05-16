@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
+
 @SpringBootTest
 class GulimallProductApplicationTests {
     private final static Logger LOGGER = LoggerFactory.getLogger(GulimallProductApplicationTests.class);
