@@ -1,8 +1,8 @@
 package com.atguigu.gulimall.product;
 
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.model.PutObjectRequest;
+//import com.aliyun.oss.OSS;
+//import com.aliyun.oss.OSSClientBuilder;
+//import com.aliyun.oss.model.PutObjectRequest;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -16,9 +16,19 @@
 #server:
 #  port: 35200
 
+# 不集成下 OSS 配置
 #ali:
 #  ram:
 #    AccessKey-ID: XXX
 #    AccessKey-Secret: XXX
 #  oss:
 #    endpoint: oss-cn-shenzhen.aliyuncs.com
+
+# 集成下 OSS 配置
+#spring:
+#  cloud:
+#    alicloud:
+#      access-key: XXX
+#      secret-key: XXX
+#      oss:
+#        endpoint: XXX
