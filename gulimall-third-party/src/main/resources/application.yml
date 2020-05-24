@@ -1,0 +1,13 @@
+# dev.yaml
+#server:
+#  port: 35700
+
+# oss.yaml
+#spring:
+#  cloud:
+#   alicloud:
+#     access-key: XXX
+#     secret-key: XXX
+#     oss:
+#       endpoint: oss-cn-shenzhen.aliyuncs.com
+#       bucket-name: gulimall-madokast
