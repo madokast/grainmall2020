@@ -35,11 +35,14 @@ public class GulimallExceptionAdvice {
     @ExceptionHandler(value = MethodArgumentNotValidException.class) //要接收的异常。方法参数不合法异常
     public R handleValidException(MethodArgumentNotValidException e) {
         LOGGER.info("数据校验出现问题");
+        LOGGER.info("e = {}", e.toString());
 
         BindingResult bindingResult = e.getBindingResult();
 
         Map<String, String> errorMap = bindingResult.getFieldErrors().stream()
                 .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+
+        LOGGER.info("errorMap = {}", errorMap);
 
         return R.error(BizCodeEnum.VALID_EXCEPTION.getCode(), BizCodeEnum.VALID_EXCEPTION.getMsg()).put("data", errorMap);
     }
