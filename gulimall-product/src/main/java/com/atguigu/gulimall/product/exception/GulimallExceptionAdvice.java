@@ -50,6 +50,7 @@ public class GulimallExceptionAdvice {
     @ExceptionHandler(value = Throwable.class)
     public R handleUnknownException(Throwable throwable) {
         LOGGER.info("出现未知异常 = {}", throwable.toString());
+        throwable.printStackTrace();
 
         return R.error(BizCodeEnum.UNKNOWN_EXCEPTION.getCode(), BizCodeEnum.UNKNOWN_EXCEPTION.getMsg());
     }

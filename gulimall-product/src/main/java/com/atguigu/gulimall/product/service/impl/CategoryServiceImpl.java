@@ -176,6 +176,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * 若父id无效，禁止保存
      * 若父id是叶子层级=3，也禁止保存
      * 因为目录最多分为三级
+     *
      * @param entity 节点
      * @return 是否保存成功
      */
@@ -186,14 +187,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         // 检插这是不是有效的节点
         Long parentCid = entity.getParentCid();
         CategoryEntity byId = getById(parentCid);
-        if(byId==null){
+        if (byId == null) {
             LOGGER.info("不是有效的节点");
             return false;
         }
 
 
         Integer catLevel = byId.getCatLevel();
-        if(catLevel ==3){
+        if (catLevel == 3) {
             LOGGER.info("叶子节点禁止新增子节点");
             return false;
         }
@@ -216,6 +217,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     /**
      * 修改分类信息
      * 不认可其中的 父id 层级 showStatue 信息
+     *
      * @param entity 分类
      * @return 是否修改成功
      */
@@ -223,7 +225,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public boolean updateById(CategoryEntity entity) {
         LOGGER.info("entity = {}", entity);
 
-        if(entity.getName()==null||entity.getName().length()==0){
+        if (entity.getName() == null || entity.getName().length() == 0) {
             LOGGER.info("name无效");
 
             return false;
@@ -234,7 +236,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         // 原节点
         CategoryEntity origin = getById(catId);
 
-        if(origin==null){
+        if (origin == null) {
             LOGGER.info("catId无效");
             return false;
         }
@@ -248,5 +250,31 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         LOGGER.info("do update");
 
         return super.updateById(entity);
+    }
+
+    /**
+     * 2020年5月31日
+     * 找出 catelogId 所属三级分类的完整路径
+     * 所谓完整路径，就是指从根到自己的路径上 catelogId 数组
+     * 例如[2,25,225]
+     *
+     * @param catelogId 三级分类
+     * @return 三级分类的完整路径
+     */
+    @Override
+    public List<Long> findCatelogIdPath(Long catelogId) {
+        Deque<Long> path = new LinkedList<>();
+
+        CategoryEntity cur = this.getById(catelogId);
+        path.addLast(cur.getCatId());
+
+        Long parentId = null;
+        while ((parentId = cur.getParentCid()) != null) {
+            cur = this.getById(parentId);
+            if (cur == null) break;
+            path.addFirst(cur.getCatId());
+        }
+
+        return (List<Long>) path;
     }
 }

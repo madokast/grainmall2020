@@ -11,3 +11,5 @@ spring:
         namespace: product
   application:
     name: gulimall-product
+server:
+  port: 35200

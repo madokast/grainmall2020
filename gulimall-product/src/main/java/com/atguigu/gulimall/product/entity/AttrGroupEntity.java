@@ -1,10 +1,13 @@
 package com.atguigu.gulimall.product.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
 
 /**
@@ -41,8 +44,71 @@ public class AttrGroupEntity implements Serializable {
 	 */
 	private String icon;
 	/**
-	 * 所属分类id
+	 * 所属三级分类id
 	 */
 	private Long catelogId;
 
+
+	/**
+	 * 所属三级分类id完整路径
+	 * 如 1-10-255
+	 */
+	@TableField(exist = false)
+	private List<Long> catelogIdPath;
+
+	public List<Long> getCatelogIdPath() {
+		return catelogIdPath;
+	}
+
+	public void setCatelogIdPath(List<Long> catelogIdPath) {
+		this.catelogIdPath = catelogIdPath;
+	}
+
+	public Long getAttrGroupId() {
+		return attrGroupId;
+	}
+
+	public void setAttrGroupId(Long attrGroupId) {
+		this.attrGroupId = attrGroupId;
+	}
+
+	public String getAttrGroupName() {
+		return attrGroupName;
+	}
+
+	public void setAttrGroupName(String attrGroupName) {
+		this.attrGroupName = attrGroupName;
+	}
+
+	public Integer getSort() {
+		return sort;
+	}
+
+	public void setSort(Integer sort) {
+		this.sort = sort;
+	}
+
+	public String getDescript() {
+		return descript;
+	}
+
+	public void setDescript(String descript) {
+		this.descript = descript;
+	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
+	public Long getCatelogId() {
+		return catelogId;
+	}
+
+	public void setCatelogId(Long catelogId) {
+		this.catelogId = catelogId;
+	}
 }

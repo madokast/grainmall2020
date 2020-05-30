@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 /**
@@ -66,6 +68,7 @@ public class CategoryEntity implements Serializable {
 	 * 其下的子分类
 	 */
 	@TableField(exist = false)
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private List<CategoryEntity> children;
 
 	public List<CategoryEntity> getChildren() {
@@ -150,5 +153,21 @@ public class CategoryEntity implements Serializable {
 
 	public void setProductCount(Integer productCount) {
 		this.productCount = productCount;
+	}
+
+	@Override
+	public String toString() {
+		return "CategoryEntity{" +
+				"catId=" + catId +
+				", name='" + name + '\'' +
+				", parentCid=" + parentCid +
+				", catLevel=" + catLevel +
+				", showStatus=" + showStatus +
+				", sort=" + sort +
+				", icon='" + icon + '\'' +
+				", productUnit='" + productUnit + '\'' +
+				", productCount=" + productCount +
+				", children=" + children +
+				'}';
 	}
 }
