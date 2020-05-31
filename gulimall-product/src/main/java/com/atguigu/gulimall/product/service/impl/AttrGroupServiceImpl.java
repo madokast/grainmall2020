@@ -43,6 +43,7 @@ import org.springframework.util.StringUtils;
 public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEntity> implements AttrGroupService {
 
     @Override
+    @Deprecated
     public PageUtils queryPage(Map<String, Object> params) {
         // mybatis IPage 实现 Page
         // 学习下 IPage
@@ -68,6 +69,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         //     */
         //    IPage<T> selectPage(IPage<T> page, @Param(Constants.WRAPPER) Wrapper<T> queryWrapper);
 
+
         IPage<AttrGroupEntity> page = this.page(
                 // 分页条件
                 new Query<AttrGroupEntity>().getPage(params),
@@ -88,6 +90,8 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     /**
      * 如果三级分类id [catelogId] == 0，则查询所有
      *
+     * 2020年5月31日 重构
+     *
      * @param params    分页相关参数
      *                  page
      *                  limit
@@ -99,11 +103,10 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
      */
     @Override
     public PageUtils queryPage(Map<String, Object> params, Long catelogId) {
-        if (catelogId == 0) {
-            return queryPage(params);
-        } else {
+
+        QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<AttrGroupEntity>();
+        if (catelogId != 0) {
             // key 是全字段模糊查询
-            String key = (String) params.get("key");
 
             // pms_attr_group 表信息
             //CREATE TABLE `pms_attr_group` (
@@ -120,27 +123,29 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             // (其他字段 like ${key})
 
             // 构造查询器
-            QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<AttrGroupEntity>()
-                    // 第一个条件 catelog_id = ${catelogId}
-                    .eq("catelog_id", catelogId);
+            wrapper.and(obj->{
+                obj.eq("catelog_id", catelogId);
+            });
 
-            if (!StringUtils.isEmpty(key)) {
-                wrapper = wrapper.and(obj -> {
-                    obj.eq("attr_group_id", key)
-                            .or()
-                            .like("attr_group_name", key)
-                            .or()
-                            .like("descript", key);
-                });
-            }
-
-            // 查询
-            IPage<AttrGroupEntity> page = this.page(
-                    new Query<AttrGroupEntity>().getPage(params),
-                    wrapper
-            );
-
-            return new PageUtils(page);
         }
+
+        String key = (String) params.get("key");
+        if (!StringUtils.isEmpty(key)) {
+            wrapper = wrapper.and(obj -> {
+                obj.eq("attr_group_id", key)
+                        .or()
+                        .like("attr_group_name", key)
+                        .or()
+                        .like("descript", key);
+            });
+        }
+
+        // 查询
+        IPage<AttrGroupEntity> page = this.page(
+                new Query<AttrGroupEntity>().getPage(params),
+                wrapper
+        );
+
+        return new PageUtils(page);
     }
 }

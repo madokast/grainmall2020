@@ -37,4 +37,45 @@ public class AttrAttrgroupRelationEntity implements Serializable {
 	 */
 	private Integer attrSort;
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getAttrId() {
+		return attrId;
+	}
+
+	public void setAttrId(Long attrId) {
+		this.attrId = attrId;
+	}
+
+	public Long getAttrGroupId() {
+		return attrGroupId;
+	}
+
+	public void setAttrGroupId(Long attrGroupId) {
+		this.attrGroupId = attrGroupId;
+	}
+
+	public Integer getAttrSort() {
+		return attrSort;
+	}
+
+	public void setAttrSort(Integer attrSort) {
+		this.attrSort = attrSort;
+	}
+
+	@Override
+	public String toString() {
+		return "AttrAttrgroupRelationEntity{" +
+				"id=" + id +
+				", attrId=" + attrId +
+				", attrGroupId=" + attrGroupId +
+				", attrSort=" + attrSort +
+				'}';
+	}
 }

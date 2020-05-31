@@ -89,7 +89,7 @@ public class CategoryController {
     @RequestMapping("/update")
     //@RequiresPermissions("product:category:update")
     public R update(@RequestBody CategoryEntity category) {
-        if (categoryService.updateById(category)) {
+        if (categoryService.updateCascade(category)) {
             return R.ok();
         }else {
             return R.error(HttpStatus.SC_BAD_REQUEST,"修改失败");

@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.product.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -9,6 +10,10 @@ import lombok.Data;
 
 /**
  * 商品属性
+ *
+ * 	// 优化！
+ * 	// 不要在 PO 持久对象中防止规则了
+ * 	// 比如以前写的各种校验
  * 
  * @author madokast
  * @email 578562554@qq.com
@@ -56,5 +61,99 @@ public class AttrEntity implements Serializable {
 	 * 快速展示【是否展示在介绍上；0-否 1-是】，在sku中仍然可以调整
 	 */
 	private Integer showDesc;
+
+	@Override
+	public String toString() {
+		return "AttrEntity{" +
+				"attrId=" + attrId +
+				", attrName='" + attrName + '\'' +
+				", searchType=" + searchType +
+				", icon='" + icon + '\'' +
+				", valueSelect='" + valueSelect + '\'' +
+				", attrType=" + attrType +
+				", enable=" + enable +
+				", catelogId=" + catelogId +
+				", showDesc=" + showDesc +
+				'}';
+	}
+
+	public Long getAttrId() {
+		return attrId;
+	}
+
+	public void setAttrId(Long attrId) {
+		this.attrId = attrId;
+	}
+
+	public String getAttrName() {
+		return attrName;
+	}
+
+	public void setAttrName(String attrName) {
+		this.attrName = attrName;
+	}
+
+	public Integer getSearchType() {
+		return searchType;
+	}
+
+	public void setSearchType(Integer searchType) {
+		this.searchType = searchType;
+	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
+	public String getValueSelect() {
+		return valueSelect;
+	}
+
+	public void setValueSelect(String valueSelect) {
+		this.valueSelect = valueSelect;
+	}
+
+	public Integer getAttrType() {
+		return attrType;
+	}
+
+	public void setAttrType(Integer attrType) {
+		this.attrType = attrType;
+	}
+
+	public Long getEnable() {
+		return enable;
+	}
+
+	public void setEnable(Long enable) {
+		this.enable = enable;
+	}
+
+	public Long getCatelogId() {
+		return catelogId;
+	}
+
+	public void setCatelogId(Long catelogId) {
+		this.catelogId = catelogId;
+	}
+
+	public Integer getShowDesc() {
+		return showDesc;
+	}
+
+	public void setShowDesc(Integer showDesc) {
+		this.showDesc = showDesc;
+	}
+
+	// 放入 VO 中了
+//	/**
+//	 * 属性分组
+//	 */
+//	@TableField(exist = false)
+//	private Long attrGroupId;
 
 }

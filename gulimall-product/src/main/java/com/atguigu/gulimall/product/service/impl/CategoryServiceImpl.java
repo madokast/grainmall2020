@@ -1,8 +1,10 @@
 package com.atguigu.gulimall.product.service.impl;
 
 import com.atguigu.common.utils.R;
+import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,11 +19,16 @@ import com.atguigu.common.utils.Query;
 import com.atguigu.gulimall.product.dao.CategoryDao;
 import com.atguigu.gulimall.product.entity.CategoryEntity;
 import com.atguigu.gulimall.product.service.CategoryService;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
     private final static Logger LOGGER = LoggerFactory.getLogger(CategoryServiceImpl.class);
+
+    @Autowired
+    private CategoryBrandRelationService categoryBrandRelationService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -276,5 +283,27 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }
 
         return (List<Long>) path;
+    }
+
+    /**
+     * 级联更新
+     * @param category
+     * @return
+     */
+    @Override
+    @Transactional
+    public boolean updateCascade(CategoryEntity category) {
+        LOGGER.info("category = {}", category);
+        String name = category.getName();
+        LOGGER.info("name = {}", name);
+        if(!StringUtils.isEmpty(name)){
+            Long catId = category.getCatId();
+            categoryBrandRelationService.updateCategory(catId,name);
+        }
+
+        // 更新自己
+        this.updateById(category);
+
+        return true;
     }
 }

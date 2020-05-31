@@ -24,5 +24,8 @@ public interface CategoryService extends IService<CategoryEntity> {
     boolean removeMenuByIds(List<Long> asList);
 
     List<Long> findCatelogIdPath(Long catelogId);
+
+    // 级联更新
+    boolean updateCascade(CategoryEntity category);
 }
 

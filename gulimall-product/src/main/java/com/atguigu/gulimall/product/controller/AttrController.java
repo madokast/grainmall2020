@@ -3,12 +3,10 @@ package com.atguigu.gulimall.product.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.atguigu.gulimall.product.vo.AttrRespVo;
+import com.atguigu.gulimall.product.vo.AttrVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.atguigu.gulimall.product.entity.AttrEntity;
 import com.atguigu.gulimall.product.service.AttrService;
@@ -33,6 +31,7 @@ public class AttrController {
     /**
      * 列表
      */
+    @Deprecated
     @RequestMapping("/list")
     //@RequiresPermissions("product:attr:list")
     public R list(@RequestParam Map<String, Object> params){
@@ -41,25 +40,57 @@ public class AttrController {
         return R.ok().put("page", page);
     }
 
+    /**
+     * 2020年5月31日
+     * 高级查询
+     * @param params 分页 + 对应三级分类 + key模糊查询
+     */
+    @GetMapping("/base/list/{catelogId}")
+    public R baseList(@RequestParam Map<String, Object> params,@PathVariable("catelogId") Long catelogId){
+        PageUtils page = attrService.queryBaseAttr(params,catelogId);
+
+        return R.ok().put("page", page);
+    }
 
     /**
      * 信息
+     * {
+     * 	"msg": "success",
+     * 	"code": 0,
+     * 	"attr": {
+     * 		"attrId": 4,
+     * 		"attrName": "aad",
+     * 		"searchType": 1,
+     * 		"valueType": 1,
+     * 		"icon": "qq",
+     * 		"valueSelect": "v;q;w",
+     * 		"attrType": 1,
+     * 		"enable": 1,
+     * 		"showDesc": 1,
+     * 		"attrGroupId": 1, //分组id
+     * 		"catelogId": 225, //分类id
+     * 		"catelogPath": [2, 34, 225] //分类完整路径
+     *        }
+     * }
      */
     @RequestMapping("/info/{attrId}")
     //@RequiresPermissions("product:attr:info")
     public R info(@PathVariable("attrId") Long attrId){
-		AttrEntity attr = attrService.getById(attrId);
+//		AttrEntity attr = attrService.getById(attrId);
+        AttrRespVo attr = attrService.getAttrRespVoById(attrId);
 
         return R.ok().put("attr", attr);
     }
 
     /**
      * 保存
+     * 2020年5月31日 把接收的数据改为 AttrVo
+     * 因为 前端发的数据 和 数据库的 entity 不完全一致
      */
     @RequestMapping("/save")
     //@RequiresPermissions("product:attr:save")
-    public R save(@RequestBody AttrEntity attr){
-		attrService.save(attr);
+    public R save(@RequestBody AttrVo attr){
+		attrService.saveAttr(attr);
 
         return R.ok();
     }
@@ -69,8 +100,8 @@ public class AttrController {
      */
     @RequestMapping("/update")
     //@RequiresPermissions("product:attr:update")
-    public R update(@RequestBody AttrEntity attr){
-		attrService.updateById(attr);
+    public R update(@RequestBody AttrVo attr){
+		attrService.updateAttr(attr);
 
         return R.ok();
     }
