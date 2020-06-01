@@ -4,13 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.atguigu.gulimall.product.entity.AttrAttrgroupRelationEntity;
+import com.atguigu.gulimall.product.entity.AttrEntity;
+import com.atguigu.gulimall.product.service.AttrService;
 import com.atguigu.gulimall.product.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.atguigu.gulimall.product.entity.AttrGroupEntity;
 import com.atguigu.gulimall.product.service.AttrGroupService;
@@ -33,6 +32,46 @@ public class AttrGroupController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private AttrService attrService;
+
+    /**
+     *
+     * 查找属性
+     * 要求：属于某三级分类、还没有被 group 关联的属性
+     */
+    @GetMapping("/{attrGroupId}/noattr/relation")
+    public R attrNoRelation(@RequestParam Map<String, Object> params,@PathVariable("attrGroupId") Long attrGroupId){
+        PageUtils pageUtils =  attrService.getNoRelationAttr(params,attrGroupId);
+
+        return R.ok().put("page",pageUtils);
+    }
+
+    /**
+     * 2020年6月1日
+     * 删除 属性 -属性分组 关联信息
+     * @param attrAttrgroupRelationEntities 属性 -属性分组
+     */
+    @PostMapping("/attr/relation/delete")
+    public R deleteRelations(@RequestBody List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntities){
+        attrGroupService.deleteRelation(attrAttrgroupRelationEntities);
+        return R.ok();
+    }
+
+    /**
+     * 2020年6月1日
+     * 返回 group 里 attrGroupId group 对应的所有 基本属性 attr
+     *
+     * @param attrGroupId attrGroupId
+     * @return 所有 基本属性 attr
+     */
+    @GetMapping("/{attrGroupId}/attr/relation")
+    public R attrRelation(@PathVariable("attrGroupId") Long attrGroupId) {
+        List<AttrEntity> attrEntityList = attrService.getRelationAttr(attrGroupId);
+
+        return R.ok().put("data", attrEntityList);
+    }
 
     /**
      * 获取属于某个[商品三级分类]下的所有属性分组
@@ -76,7 +115,7 @@ public class AttrGroupController {
     public R list(@RequestParam Map<String, Object> params,
                   @PathVariable("catelogId") Long catelogId) {
 
-        PageUtils page =  attrGroupService.queryPage(params,catelogId);
+        PageUtils page = attrGroupService.queryPage(params, catelogId);
 
         return R.ok().put("page", page);
     }
@@ -92,7 +131,7 @@ public class AttrGroupController {
 
         Long catelogId = attrGroup.getCatelogId();
 
-        List<Long> catelogIdPath =  categoryService.findCatelogIdPath(catelogId);
+        List<Long> catelogIdPath = categoryService.findCatelogIdPath(catelogId);
 
         attrGroup.setCatelogIdPath(catelogIdPath);
 

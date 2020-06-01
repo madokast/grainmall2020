@@ -42,6 +42,7 @@ public class AttrController {
 
     /**
      * 2020年5月31日
+     * 规格属性
      * 高级查询
      * @param params 分页 + 对应三级分类 + key模糊查询
      */
@@ -51,6 +52,20 @@ public class AttrController {
 
         return R.ok().put("page", page);
     }
+
+    /**
+     * 2020年6月1日
+     * 销售属性
+     * @param params 分页
+     * @param catelogId 对应的三级分类
+     */
+    @GetMapping("/sale/list/{catelogId}")
+    public R saleList(@RequestParam Map<String, Object> params,@PathVariable("catelogId") Long catelogId){
+        PageUtils page = attrService.querySaleAttr(params,catelogId);
+
+        return R.ok().put("page", page);
+    }
+
 
     /**
      * 信息

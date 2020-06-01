@@ -1,8 +1,12 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import com.atguigu.gulimall.product.dao.AttrAttrgroupRelationDao;
+import com.atguigu.gulimall.product.entity.AttrAttrgroupRelationEntity;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -41,6 +45,9 @@ import org.springframework.util.StringUtils;
 
 @Service("attrGroupService")
 public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEntity> implements AttrGroupService {
+
+    @Autowired
+    private AttrAttrgroupRelationDao attrAttrgroupRelationDao;
 
     @Override
     @Deprecated
@@ -89,7 +96,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     /**
      * 如果三级分类id [catelogId] == 0，则查询所有
-     *
+     * <p>
      * 2020年5月31日 重构
      *
      * @param params    分页相关参数
@@ -123,7 +130,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             // (其他字段 like ${key})
 
             // 构造查询器
-            wrapper.and(obj->{
+            wrapper.and(obj -> {
                 obj.eq("catelog_id", catelogId);
             });
 
@@ -147,5 +154,32 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         );
 
         return new PageUtils(page);
+    }
+
+
+    /**
+     * 删除 attrAttrgroupRelationEntities
+     *
+     * @param attrAttrgroupRelationEntities
+     */
+    @Override
+    public void deleteRelation(List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntities) {
+        if (!attrAttrgroupRelationEntities.isEmpty()) {
+            QueryWrapper<AttrAttrgroupRelationEntity> objectQueryWrapper = new QueryWrapper<>();
+
+            attrAttrgroupRelationEntities.forEach(
+                    attrAttrgroupRelationEntity -> {
+                        Long attrGroupId = attrAttrgroupRelationEntity.getAttrGroupId();
+                        Long attrId = attrAttrgroupRelationEntity.getAttrId();
+                        objectQueryWrapper.or(
+                                obj -> obj.eq("attr_id", attrId).eq("attr_group_id", attrGroupId)
+                        );
+                    }
+            );
+
+            attrAttrgroupRelationDao.delete(objectQueryWrapper);
+        }
+
+
     }
 }
