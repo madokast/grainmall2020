@@ -6,8 +6,10 @@ import java.util.Map;
 
 import com.atguigu.gulimall.product.entity.AttrAttrgroupRelationEntity;
 import com.atguigu.gulimall.product.entity.AttrEntity;
+import com.atguigu.gulimall.product.service.AttrAttrgroupRelationService;
 import com.atguigu.gulimall.product.service.AttrService;
 import com.atguigu.gulimall.product.service.CategoryService;
+import com.atguigu.gulimall.product.vo.AttrGroupWithAttrsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,25 +38,59 @@ public class AttrGroupController {
     @Autowired
     private AttrService attrService;
 
+    @Autowired
+    private AttrAttrgroupRelationService attrAttrgroupRelationService;
+
     /**
+     * 2020年6月2日
+     * 获取 catelogId 对应的商品三级分类 对应的所有 分组attr group
+     * 同时每个分组带有全部的属性信息 attr
      *
+     * @param catelogId 三级分类
+     */
+    @GetMapping("/{catelogId}/withattr")
+    public R getAttrGroupWithAttrs(@PathVariable("catelogId") Long catelogId) {
+
+        // 1. 查出当前分类下所有属性分组
+
+        // 2. 查出每个属性分组的所有属性
+
+        List<AttrGroupWithAttrsVo> attrGroupWithAttrsVos = attrGroupService.getAttrGroupWithAttrsByCatelogId(catelogId);
+
+        return R.ok().put("data", attrGroupWithAttrsVos);
+    }
+
+    /**
+     * 新增 基本属性 - 属性分组 关联
+     * json{attrId, attrGroupId}
+     *
+     * @param attrAttrgroupRelationEntities 基本属性 - 属性分组 关联
+     */
+    @PostMapping("/attr/relation")
+    public R addRelation(@RequestBody List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntities) {
+        attrAttrgroupRelationService.saveBatch(attrAttrgroupRelationEntities);
+        return R.ok();
+    }
+
+    /**
      * 查找属性
      * 要求：属于某三级分类、还没有被 group 关联的属性
      */
     @GetMapping("/{attrGroupId}/noattr/relation")
-    public R attrNoRelation(@RequestParam Map<String, Object> params,@PathVariable("attrGroupId") Long attrGroupId){
-        PageUtils pageUtils =  attrService.getNoRelationAttr(params,attrGroupId);
+    public R attrNoRelation(@RequestParam Map<String, Object> params, @PathVariable("attrGroupId") Long attrGroupId) {
+        PageUtils pageUtils = attrService.getNoRelationAttr(params, attrGroupId);
 
-        return R.ok().put("page",pageUtils);
+        return R.ok().put("page", pageUtils);
     }
 
     /**
      * 2020年6月1日
      * 删除 属性 -属性分组 关联信息
+     *
      * @param attrAttrgroupRelationEntities 属性 -属性分组
      */
     @PostMapping("/attr/relation/delete")
-    public R deleteRelations(@RequestBody List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntities){
+    public R deleteRelations(@RequestBody List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntities) {
         attrGroupService.deleteRelation(attrAttrgroupRelationEntities);
         return R.ok();
     }

@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.2.3:8848
+      config:
+        server-addr: 192.168.2.3:8848
+        file-extension: yaml
+        namespace: member
+  application:
+    name: gulimall-member
+server:
+  port: 35600

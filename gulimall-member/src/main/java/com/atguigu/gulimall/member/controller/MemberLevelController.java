@@ -31,6 +31,7 @@ public class MemberLevelController {
     private MemberLevelService memberLevelService;
 
     /**
+     * 获取所有会员等级信息
      * 列表
      */
     @RequestMapping("/list")

@@ -13,18 +13,24 @@ spring:
         namespace: gateway
     gateway:
       routes:
-        - id: gulimall_product
+        - id: gulimall-product-route
           uri: lb://gulimall-product
           predicates:
             - Path=/api/product/**
           filters:
             - RewritePath=/api/(?<segment>.*),/$\{segment}
-        - id: gulimall-third-party
+        - id: gulimall-third-party-route
           uri: lb://gulimall-third-party
           predicates:
             - Path=/api/thirdparty/**
           filters:
             - RewritePath=/api/thirdparty/(?<segment>.*),/$\{segment}
+        - id: gulimall-member-route
+          uri: lb://gulimall-member
+          predicates:
+            -  Path=/api/member/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
         # 这个路由放最后，不然会覆盖前面的
         - id: admin_route
           uri: lb://renren-fast

@@ -3,8 +3,14 @@ package com.atguigu.gulimall.product.controller;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.atguigu.gulimall.product.entity.BrandEntity;
+import com.atguigu.gulimall.product.vo.BrandVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,8 +32,39 @@ import com.atguigu.common.utils.R;
 @RestController
 @RequestMapping("product/categorybrandrelation")
 public class CategoryBrandRelationController {
+    private final static Logger LOGGER = LoggerFactory.getLogger(CategoryBrandRelationController.class);
+
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+
+    /**
+     * 2020年6月2日
+     * 获取三级分类下所有品牌
+     * 例如 手机分类下
+     * 华为 小米 苹果
+     * 1. controller 两个功能：1.校验 2.把 entity 转为 vo
+     * 2. service 业务处理
+     *
+     * @param catId 三级分类id
+     * @return 三级分类下所有品牌
+     */
+    @GetMapping("/brands/list")
+    public R relationBrandList(@RequestParam(value = "catId", required = true) Long catId) {
+        LOGGER.info("relationBrandList catId = {}", catId);
+
+        List<BrandEntity> brandEntities = categoryBrandRelationService.getBrandsByCatId(catId);
+        List<BrandVo> brandVos = brandEntities.stream().map(brandEntity -> {
+            BrandVo brandVo = new BrandVo();
+
+            brandVo.setBrandId(brandEntity.getBrandId());
+
+            brandVo.setBrandName(brandEntity.getName());
+
+            return brandVo;
+        }).collect(Collectors.toList());
+
+        return R.ok().put("data", brandVos);
+    }
 
     /**
      * 2020年5月31日
@@ -45,7 +82,6 @@ public class CategoryBrandRelationController {
 
         return R.ok().put("data", data);
     }
-
 
 
     /**
