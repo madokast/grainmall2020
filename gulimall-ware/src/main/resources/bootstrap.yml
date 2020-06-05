@@ -1,8 +1,6 @@
 spring:
-  application:
-    name: gulimall-coupon
   profiles:
-    active: dev # 表示去拉开发环境的配置
+    active: dev
   cloud:
     nacos:
       discovery:
@@ -10,6 +8,12 @@ spring:
       config:
         server-addr: 192.168.2.3:8848
         file-extension: yaml
-        namespace: coupon
+        namespace: ware
+  application:
+    name: gulimall-ware
 server:
-  port: 35500
+  port: 35300
+
+logging:
+  level:
+    com.atguigu.gulimall.ware: debug

@@ -11,5 +11,7 @@ spring:
         namespace: product
   application:
     name: gulimall-product
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
 server:
   port: 35200

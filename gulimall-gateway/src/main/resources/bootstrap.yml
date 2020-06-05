@@ -31,6 +31,18 @@ spring:
             -  Path=/api/member/**
           filters:
             - RewritePath=/api/(?<segment>.*),/$\{segment}
+        - id: gulimall-ware-route
+          uri: lb://gulimall-ware
+          predicates:
+            - Path=/api/ware/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
+        - id: gulimall-coupon-route
+          uri: lb://gulimall-coupon
+          predicates:
+            - Path=/api/coupon/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
         # 这个路由放最后，不然会覆盖前面的
         - id: admin_route
           uri: lb://renren-fast
@@ -53,6 +65,6 @@ spring:
 #          uri: https://www.qq.com
 #          predicates:
 #            - Query=url,qq
-#server:
-#  port: 20088
+server:
+  port: 20088
 debug: true

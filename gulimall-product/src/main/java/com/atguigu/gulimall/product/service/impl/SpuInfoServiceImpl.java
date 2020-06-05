@@ -1,15 +1,19 @@
 package com.atguigu.gulimall.product.service.impl;
 
-import com.atguigu.gulimall.product.entity.AttrEntity;
-import com.atguigu.gulimall.product.entity.ProductAttrValueEntity;
-import com.atguigu.gulimall.product.entity.SpuInfoDescEntity;
+import com.atguigu.common.to.SkuReductionTo;
+import com.atguigu.common.to.SpuBoundsTo;
+import com.atguigu.common.utils.R;
+import com.atguigu.gulimall.product.entity.*;
+import com.atguigu.gulimall.product.feign.CouponFeignService;
 import com.atguigu.gulimall.product.service.*;
-import com.atguigu.gulimall.product.vo.BaseAttrs;
-import com.atguigu.gulimall.product.vo.SpuSaveVo;
+import com.atguigu.gulimall.product.vo.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -22,12 +26,13 @@ import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.Query;
 
 import com.atguigu.gulimall.product.dao.SpuInfoDao;
-import com.atguigu.gulimall.product.entity.SpuInfoEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 
 @Service("spuInfoService")
 public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> implements SpuInfoService {
+    private final static Logger LOGGER = LoggerFactory.getLogger(SpuInfoServiceImpl.class);
 
     @Autowired
     private SpuInfoDescService spuInfoDescService;
@@ -41,6 +46,18 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     @Autowired
     private ProductAttrValueService productAttrValueService;
 
+    @Autowired
+    private SkuInfoService skuInfoService;
+
+    @Autowired
+    private SkuImagesService skuImagesService;
+
+    @Autowired
+    private SkuSaleAttrValueService skuSaleAttrValueService;
+
+    @Autowired
+    private CouponFeignService couponFeignService;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SpuInfoEntity> page = this.page(
@@ -53,7 +70,50 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
 
     /**
+     * 2020年6月5日
+     * 条件检索
+     *
+     * @param params 分页+条件
+     */
+    @Override
+    public PageUtils queryPageByCondition(Map<String, Object> params) {
+        QueryWrapper<SpuInfoEntity> queryWrapper = new QueryWrapper<>();
+
+        String key = (String) params.get("key");
+        if (!StringUtils.isEmpty(key)) {
+            queryWrapper.and(w -> {
+                w.eq("id", key).or().like("spu_name", key);
+            });
+        }
+
+        String status = (String) params.get("status");
+        if (!StringUtils.isEmpty(status)) {
+            queryWrapper.and(w -> {
+                w.eq("publish_status", status);
+            });
+        }
+
+        String brandId = (String) params.get("brandId");
+        if (!StringUtils.isEmpty(brandId) && !"0".equalsIgnoreCase(brandId)) {
+            queryWrapper.eq("brand_id", brandId);
+        }
+
+        String catalogId = (String) params.get("catalogId");
+        if (!StringUtils.isEmpty(catalogId) && !"0".equalsIgnoreCase(catalogId)) {
+            queryWrapper.eq("catalog_id", catalogId);
+        }
+
+        IPage<SpuInfoEntity> page = this.page(
+                new Query<SpuInfoEntity>().getPage(params),
+                queryWrapper
+        );
+
+        return new PageUtils(page);
+    }
+
+    /**
      * 大保存
+     * TODO 更多的知识在高级部分
      *
      * @param spuSaveVo spu商品信息
      */
@@ -143,84 +203,140 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         //   `work` tinyint(1) DEFAULT NULL COMMENT '优惠生效情况[1111（四个状态位，从右到左）;0 - 无优惠，成长积分是否赠送;1 - 无优惠，购物积分是否赠送;2 - 有优惠，成长积分是否赠送;3 - 有优惠，购物积分是否赠送【状态位0：不赠送，1：赠送】]',
         //   PRIMARY KEY (`id`)
         // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品spu积分设置'
-        // TODO 远程保存
+        Bounds bounds = spuSaveVo.getBounds();
+        SpuBoundsTo spuBoundsTo = new SpuBoundsTo();
+        BeanUtils.copyProperties(bounds, spuBoundsTo);
+        spuBoundsTo.setSpuId(spuId);
+        R r = couponFeignService.saveSpuBounds(spuBoundsTo);
+        if (r.getCode() != 0) {
+            LOGGER.error("远程保存spu积分信息失败");
+        }
+
 
         // 5. 保存 sku
-        // 5.1 sku 基本信息信息 pms_sku_info
-        //CREATE TABLE `pms_sku_info` (
-        //   `sku_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'skuId',
-        //   `spu_id` bigint(20) DEFAULT NULL COMMENT 'spuId',
-        //   `sku_name` varchar(255) DEFAULT NULL COMMENT 'sku名称',
-        //   `sku_desc` varchar(2000) DEFAULT NULL COMMENT 'sku介绍描述',
-        //   `catalog_id` bigint(20) DEFAULT NULL COMMENT '所属分类id',
-        //   `brand_id` bigint(20) DEFAULT NULL COMMENT '品牌id',
-        //   `sku_default_img` varchar(255) DEFAULT NULL COMMENT '默认图片',
-        //   `sku_title` varchar(255) DEFAULT NULL COMMENT '标题',
-        //   `sku_subtitle` varchar(2000) DEFAULT NULL COMMENT '副标题',
-        //   `price` decimal(18,4) DEFAULT NULL COMMENT '价格',
-        //   `sale_count` bigint(20) DEFAULT NULL COMMENT '销量',
-        //   PRIMARY KEY (`sku_id`)
-        // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='sku信息'
-        // TODO 2020年6月2日 昨天学到这里
+        List<Skus> skus = spuSaveVo.getSkus(); // sku 全部信息
+        if (skus != null && !skus.isEmpty()) {
+            skus.forEach(item -> {
+
+                // 5.1 sku 基本信息信息 pms_sku_info
+                //CREATE TABLE `pms_sku_info` (
+                //   `sku_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'skuId',
+                //   `spu_id` bigint(20) DEFAULT NULL COMMENT 'spuId',
+                //   `sku_name` varchar(255) DEFAULT NULL COMMENT 'sku名称',
+                //   `sku_desc` varchar(2000) DEFAULT NULL COMMENT 'sku介绍描述',
+                //   `catalog_id` bigint(20) DEFAULT NULL COMMENT '所属分类id',
+                //   `brand_id` bigint(20) DEFAULT NULL COMMENT '品牌id',
+                //   `sku_default_img` varchar(255) DEFAULT NULL COMMENT '默认图片',
+                //   `sku_title` varchar(255) DEFAULT NULL COMMENT '标题',
+                //   `sku_subtitle` varchar(2000) DEFAULT NULL COMMENT '副标题',
+                //   `price` decimal(18,4) DEFAULT NULL COMMENT '价格',
+                //   `sale_count` bigint(20) DEFAULT NULL COMMENT '销量',
+                //   PRIMARY KEY (`sku_id`)
+                // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='sku信息'
+                SkuInfoEntity skuInfoEntity = new SkuInfoEntity();
+                BeanUtils.copyProperties(item, skuInfoEntity);
+                skuInfoEntity.setBrandId(spuInfoEntity.getBrandId());
+                skuInfoEntity.setCatalogId(spuInfoEntity.getCatalogId());
+                skuInfoEntity.setSaleCount(0L);
+                skuInfoEntity.setSpuId(spuInfoEntity.getId());
+                skuInfoEntity.setSkuDefaultImg(
+                        item.getImages().stream().filter(img -> img.getDefaultImg() == 1).map(Images::getImgUrl).findFirst().orElse(null)
+                );
+
+                skuInfoService.getBaseMapper().insert(skuInfoEntity);
+                // 保存 pms_sku_info 后，可以拿到主键 sku-id
+                final Long skuId = skuInfoEntity.getSkuId();
 
 
-        // 5.2 sku 图片信息 pms_sku_images
-        //CREATE TABLE `pms_sku_images` (
-        //   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
-        //   `sku_id` bigint(20) DEFAULT NULL COMMENT 'sku_id',
-        //   `img_url` varchar(255) DEFAULT NULL COMMENT '图片地址',
-        //   `img_sort` int(11) DEFAULT NULL COMMENT '排序',
-        //   `default_img` int(11) DEFAULT NULL COMMENT '默认图[0 - 不是默认图，1 - 是默认图]',
-        //   PRIMARY KEY (`id`)
-        // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='sku图片'
+                // 5.2 sku 图片信息 pms_sku_images
+                //CREATE TABLE `pms_sku_images` (
+                //   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+                //   `sku_id` bigint(20) DEFAULT NULL COMMENT 'sku_id',
+                //   `img_url` varchar(255) DEFAULT NULL COMMENT '图片地址',
+                //   `img_sort` int(11) DEFAULT NULL COMMENT '排序',
+                //   `default_img` int(11) DEFAULT NULL COMMENT '默认图[0 - 不是默认图，1 - 是默认图]',
+                //   PRIMARY KEY (`id`)
+                // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='sku图片'
+                List<SkuImagesEntity> skuImagesEntities = item.getImages().stream().map(img -> {
+                    SkuImagesEntity skuImagesEntity = new SkuImagesEntity();
+                    skuImagesEntity.setSkuId(skuId);
+                    skuImagesEntity.setImgUrl(img.getImgUrl());
+                    skuImagesEntity.setDefaultImg(img.getDefaultImg());
+                    return skuImagesEntity;
+                }).filter(skuImagesEntity -> !StringUtils.isEmpty(skuImagesEntity.getImgUrl()))
+                        .collect(Collectors.toList());
+                skuImagesService.saveBatch(skuImagesEntities);
+
+                // 5.3 sku 销售属性信息 pms_sku_sale_attr_value
+                //CREATE TABLE `pms_sku_sale_attr_value` (
+                //   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+                //   `sku_id` bigint(20) DEFAULT NULL COMMENT 'sku_id',
+                //   `attr_id` bigint(20) DEFAULT NULL COMMENT 'attr_id',
+                //   `attr_name` varchar(200) DEFAULT NULL COMMENT '销售属性名',
+                //   `attr_value` varchar(200) DEFAULT NULL COMMENT '销售属性值',
+                //   `attr_sort` int(11) DEFAULT NULL COMMENT '顺序',
+                //   PRIMARY KEY (`id`)
+                // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='sku销售属性&值'
+                List<Attr> attrs = item.getAttr();
+                List<SkuSaleAttrValueEntity> skuSaleAttrValueEntities = attrs.stream().map(attr -> {
+                    SkuSaleAttrValueEntity skuSaleAttrValueEntity = new SkuSaleAttrValueEntity();
+                    BeanUtils.copyProperties(attr, skuSaleAttrValueEntity);
+                    skuSaleAttrValueEntity.setSkuId(skuId);
+                    return skuSaleAttrValueEntity;
+                }).collect(Collectors.toList());
+                skuSaleAttrValueService.saveBatch(skuSaleAttrValueEntities);
 
 
-        // 5.3 sku 销售属性信息 pms_sku_sale_attr_value
-        //CREATE TABLE `pms_sku_sale_attr_value` (
-        //   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
-        //   `sku_id` bigint(20) DEFAULT NULL COMMENT 'sku_id',
-        //   `attr_id` bigint(20) DEFAULT NULL COMMENT 'attr_id',
-        //   `attr_name` varchar(200) DEFAULT NULL COMMENT '销售属性名',
-        //   `attr_value` varchar(200) DEFAULT NULL COMMENT '销售属性值',
-        //   `attr_sort` int(11) DEFAULT NULL COMMENT '顺序',
-        //   PRIMARY KEY (`id`)
-        // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='sku销售属性&值'
+                // 5.4 sku 优惠 满减信息（跨库
+                // 5.4.1 sku 打折信息 sms_sku_ladder
+                //CREATE TABLE `sms_sku_ladder` (
+                //   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+                //   `sku_id` bigint(20) DEFAULT NULL COMMENT 'spu_id',
+                //   `full_count` int(11) DEFAULT NULL COMMENT '满几件',
+                //   `discount` decimal(4,2) DEFAULT NULL COMMENT '打几折',
+                //   `price` decimal(18,4) DEFAULT NULL COMMENT '折后价',
+                //   `add_other` tinyint(1) DEFAULT NULL COMMENT '是否叠加其他优惠[0-不可叠加，1-可叠加]',
+                //   PRIMARY KEY (`id`)
+                // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品阶梯价格'
+                //---------- 全部封装 --------------------//
 
 
-        // 5.4 sku 优惠 满减信息（跨库
-        // 5.4.1 sku 打折信息 sms_sku_ladder
-        //CREATE TABLE `sms_sku_ladder` (
-        //   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
-        //   `sku_id` bigint(20) DEFAULT NULL COMMENT 'spu_id',
-        //   `full_count` int(11) DEFAULT NULL COMMENT '满几件',
-        //   `discount` decimal(4,2) DEFAULT NULL COMMENT '打几折',
-        //   `price` decimal(18,4) DEFAULT NULL COMMENT '折后价',
-        //   `add_other` tinyint(1) DEFAULT NULL COMMENT '是否叠加其他优惠[0-不可叠加，1-可叠加]',
-        //   PRIMARY KEY (`id`)
-        // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品阶梯价格'
+                // 5.4.2 sku 满减信息  sms_sku_full_reduction
+                //CREATE TABLE `sms_sku_full_reduction` (
+                //   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+                //   `sku_id` bigint(20) DEFAULT NULL COMMENT 'spu_id',
+                //   `full_price` decimal(18,4) DEFAULT NULL COMMENT '满多少',
+                //   `reduce_price` decimal(18,4) DEFAULT NULL COMMENT '减多少',
+                //   `add_other` tinyint(1) DEFAULT NULL COMMENT '是否参与其他优惠',
+                //   PRIMARY KEY (`id`)
+                // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品满减信息'
+                //---------- 全部封装 --------------------//
 
+                // 5.4.3 sku 会员价格表 sms_member_price
+                //CREATE TABLE `sms_member_price` (
+                //   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+                //   `sku_id` bigint(20) DEFAULT NULL COMMENT 'sku_id',
+                //   `member_level_id` bigint(20) DEFAULT NULL COMMENT '会员等级id',
+                //   `member_level_name` varchar(100) DEFAULT NULL COMMENT '会员等级名',
+                //   `member_price` decimal(18,4) DEFAULT NULL COMMENT '会员对应价格',
+                //   `add_other` tinyint(1) DEFAULT NULL COMMENT '可否叠加其他优惠[0-不可叠加优惠，1-可叠加]',
+                //   PRIMARY KEY (`id`)
+                // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品会员价格'
+                //---------- 全部封装 --------------------//
+                SkuReductionTo skuReductionTo = new SkuReductionTo();
+                BeanUtils.copyProperties(item, skuReductionTo);
+                skuReductionTo.setSkuId(skuId);
+                if (skuReductionTo.getFullCount() > 0 || skuReductionTo.getFullPrice().compareTo(new BigDecimal(0)) > 0) {
+                    R r1 = couponFeignService.saveSkuRedution(skuReductionTo);
+                    if (r1.getCode() != 0) {
+                        LOGGER.error("远程保存sku优惠信息失败");
+                    }
+                }
 
-        // 5.4.2 sku 满减信息  sms_sku_full_reduction
-        //CREATE TABLE `sms_sku_full_reduction` (
-        //   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
-        //   `sku_id` bigint(20) DEFAULT NULL COMMENT 'spu_id',
-        //   `full_price` decimal(18,4) DEFAULT NULL COMMENT '满多少',
-        //   `reduce_price` decimal(18,4) DEFAULT NULL COMMENT '减多少',
-        //   `add_other` tinyint(1) DEFAULT NULL COMMENT '是否参与其他优惠',
-        //   PRIMARY KEY (`id`)
-        // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品满减信息'
+            });
 
+        }
 
-        // 5.4.3 sku 会员价格表 sms_member_price
-        //CREATE TABLE `sms_member_price` (
-        //   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
-        //   `sku_id` bigint(20) DEFAULT NULL COMMENT 'sku_id',
-        //   `member_level_id` bigint(20) DEFAULT NULL COMMENT '会员等级id',
-        //   `member_level_name` varchar(100) DEFAULT NULL COMMENT '会员等级名',
-        //   `member_price` decimal(18,4) DEFAULT NULL COMMENT '会员对应价格',
-        //   `add_other` tinyint(1) DEFAULT NULL COMMENT '可否叠加其他优惠[0-不可叠加优惠，1-可叠加]',
-        //   PRIMARY KEY (`id`)
-        // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品会员价格'
 
     }
 

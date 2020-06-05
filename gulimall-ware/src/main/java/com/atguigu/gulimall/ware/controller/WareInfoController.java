@@ -31,12 +31,14 @@ public class WareInfoController {
     private WareInfoService wareInfoService;
 
     /**
+     * 2020年6月5日
+     * 增加 key 的模糊查询功能
      * 列表
      */
     @RequestMapping("/list")
     //@RequiresPermissions("ware:wareinfo:list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = wareInfoService.queryPage(params);
+        PageUtils page = wareInfoService.queryPageByKey(params);
 
         return R.ok().put("page", page);
     }

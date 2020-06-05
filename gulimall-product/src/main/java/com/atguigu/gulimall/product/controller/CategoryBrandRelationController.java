@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.atguigu.gulimall.product.entity.BrandEntity;
+import com.atguigu.gulimall.product.service.BrandService;
 import com.atguigu.gulimall.product.vo.BrandVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.slf4j.Logger;
@@ -37,6 +38,9 @@ public class CategoryBrandRelationController {
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
 
+    @Autowired
+    private BrandService brandService;
+
     /**
      * 2020年6月2日
      * 获取三级分类下所有品牌
@@ -49,10 +53,19 @@ public class CategoryBrandRelationController {
      * @return 三级分类下所有品牌
      */
     @GetMapping("/brands/list")
-    public R relationBrandList(@RequestParam(value = "catId", required = true) Long catId) {
+    public R relationBrandList(@RequestParam(value = "catId", required = false) Long catId) {
         LOGGER.info("relationBrandList catId = {}", catId);
 
+
         List<BrandEntity> brandEntities = categoryBrandRelationService.getBrandsByCatId(catId);
+        if(catId!=null){
+            categoryBrandRelationService.getBrandsByCatId(catId);
+        }else {
+            brandEntities = brandService.list();
+        }
+
+
+
         List<BrandVo> brandVos = brandEntities.stream().map(brandEntity -> {
             BrandVo brandVo = new BrandVo();
 

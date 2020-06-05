@@ -121,4 +121,21 @@ public class SpuSaveVo {
         return skus;
     }
 
+
+    @Override
+    public String toString() {
+        return "SpuSaveVo{" +
+                "spuName='" + spuName + '\'' +
+                ", spuDescription='" + spuDescription + '\'' +
+                ", catalogId=" + catalogId +
+                ", brandId=" + brandId +
+                ", weight=" + weight +
+                ", publishStatus=" + publishStatus +
+                ", decript=" + decript +
+                ", images=" + images +
+                ", bounds=" + bounds +
+                ", baseAttrs=" + baseAttrs +
+                ", skus=" + skus +
+                '}';
+    }
 }
