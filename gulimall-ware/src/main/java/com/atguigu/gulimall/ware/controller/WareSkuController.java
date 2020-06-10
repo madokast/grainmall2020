@@ -31,12 +31,13 @@ public class WareSkuController {
     private WareSkuService wareSkuService;
 
     /**
+     * 2020年6月6日 添加检索条件
      * 列表
      */
     @RequestMapping("/list")
     //@RequiresPermissions("ware:waresku:list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = wareSkuService.queryPage(params);
+        PageUtils page = wareSkuService.queryPageCondition(params);
 
         return R.ok().put("page", page);
     }

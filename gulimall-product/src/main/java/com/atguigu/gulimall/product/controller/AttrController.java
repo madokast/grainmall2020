@@ -1,8 +1,11 @@
 package com.atguigu.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import com.atguigu.gulimall.product.entity.ProductAttrValueEntity;
+import com.atguigu.gulimall.product.service.ProductAttrValueService;
 import com.atguigu.gulimall.product.vo.AttrRespVo;
 import com.atguigu.gulimall.product.vo.AttrVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,35 @@ import com.atguigu.common.utils.R;
 public class AttrController {
     @Autowired
     private AttrService attrService;
+
+    @Autowired
+    private ProductAttrValueService productAttrValueService;
+
+    /**
+     * 2020年6月7日
+     * spu对应的属性维护
+     * @param spuId spu id
+     * @return 结果
+     */
+    // base/listforspu/{spuId}
+    @GetMapping("base/listforspu/{spuId}")
+    public R baseListForSpu(@PathVariable("spuId") long spuId){
+
+        List<ProductAttrValueEntity> data =
+                productAttrValueService.baseListForSpu(spuId);
+
+        return R.ok().put("data", data);
+    }
+
+
+    @PostMapping("/update/{spuId}")
+    public R updateSpuAttr(@PathVariable("spuId") long spuId,
+                           @RequestBody List<ProductAttrValueEntity> productAttrValueEntityList){
+
+        productAttrValueService.updateSpuAttr(spuId,productAttrValueEntityList);
+
+        return R.ok();
+    }
 
     /**
      * 列表

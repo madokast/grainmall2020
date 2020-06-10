@@ -31,12 +31,14 @@ public class PurchaseDetailController {
     private PurchaseDetailService purchaseDetailService;
 
     /**
+     * 2020年6月6日
+     * 采购单
      * 列表
      */
     @RequestMapping("/list")
     //@RequiresPermissions("ware:purchasedetail:list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = purchaseDetailService.queryPage(params);
+        PageUtils page = purchaseDetailService.queryPageCondition(params);
 
         return R.ok().put("page", page);
     }

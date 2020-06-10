@@ -344,4 +344,14 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     public void saveBaseSpuInfo(SpuInfoEntity spuInfoEntity) {
         this.baseMapper.insert(spuInfoEntity);
     }
+
+
+    /**
+     * 商品上级
+     * @param spuId 商品
+     */
+    @Override
+    public void up(Long spuId) {
+        // TODO 首先建立 es 中用到的 BEAN
+    }
 }

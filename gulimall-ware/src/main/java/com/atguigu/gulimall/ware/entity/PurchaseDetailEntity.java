@@ -50,4 +50,72 @@ public class PurchaseDetailEntity implements Serializable {
 	 */
 	private Integer status;
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getPurchaseId() {
+		return purchaseId;
+	}
+
+	public void setPurchaseId(Long purchaseId) {
+		this.purchaseId = purchaseId;
+	}
+
+	public Long getSkuId() {
+		return skuId;
+	}
+
+	public void setSkuId(Long skuId) {
+		this.skuId = skuId;
+	}
+
+	public Integer getSkuNum() {
+		return skuNum;
+	}
+
+	public void setSkuNum(Integer skuNum) {
+		this.skuNum = skuNum;
+	}
+
+	public BigDecimal getSkuPrice() {
+		return skuPrice;
+	}
+
+	public void setSkuPrice(BigDecimal skuPrice) {
+		this.skuPrice = skuPrice;
+	}
+
+	public Long getWareId() {
+		return wareId;
+	}
+
+	public void setWareId(Long wareId) {
+		this.wareId = wareId;
+	}
+
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	@Override
+	public String toString() {
+		return "PurchaseDetailEntity{" +
+				"id=" + id +
+				", purchaseId=" + purchaseId +
+				", skuId=" + skuId +
+				", skuNum=" + skuNum +
+				", skuPrice=" + skuPrice +
+				", wareId=" + wareId +
+				", status=" + status +
+				'}';
+	}
 }
