@@ -2,6 +2,7 @@ package com.atguigu.gulimall.product.service.impl;
 
 import com.atguigu.common.to.SkuReductionTo;
 import com.atguigu.common.to.SpuBoundsTo;
+import com.atguigu.common.to.es.SkuEsModel;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.product.entity.*;
 import com.atguigu.gulimall.product.feign.CouponFeignService;
@@ -352,6 +353,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
      */
     @Override
     public void up(Long spuId) {
-        // TODO 首先建立 es 中用到的 BEAN
+        // 组成需要的书籍
+        SkuEsModel skuEsModel = new SkuEsModel();
+        // 视频 130 加油!!
+
     }
 }
