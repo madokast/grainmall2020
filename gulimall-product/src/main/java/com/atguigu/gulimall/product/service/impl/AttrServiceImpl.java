@@ -32,7 +32,20 @@ import com.atguigu.gulimall.product.service.AttrService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-
+/**
+ * CREATE TABLE `pms_attr` (
+ * `attr_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '属性id',
+ * `attr_name` char(30) DEFAULT NULL COMMENT '属性名',
+ * `search_type` tinyint(4) DEFAULT NULL COMMENT '是否需要检索[0-不需要，1-需要]',
+ * `icon` varchar(255) DEFAULT NULL COMMENT '属性图标',
+ * `value_select` char(255) DEFAULT NULL COMMENT '可选值列表[用逗号分隔]',
+ * `attr_type` tinyint(4) DEFAULT NULL COMMENT '属性类型[0-销售属性，1-基本属性，2-既是销售属性又是基本属性]',
+ * `enable` bigint(20) DEFAULT NULL COMMENT '启用状态[0 - 禁用，1 - 启用]',
+ * `catelog_id` bigint(20) DEFAULT NULL COMMENT '所属分类',
+ * `show_desc` tinyint(4) DEFAULT NULL COMMENT '快速展示【是否展示在介绍上；0-否 1-是】，在sku中仍然可以调整',
+ * PRIMARY KEY (`attr_id`)
+ * ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COMMENT='商品属性'
+ */
 @Service("attrService")
 public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements AttrService {
 
@@ -159,7 +172,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                     AttrAttrgroupRelationEntity attrAttrgroupRelationEntity = attrAttrgroupRelationDao.selectOne(
                             new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrId)
                     );
-                    if(attrAttrgroupRelationEntity!=null){
+                    if (attrAttrgroupRelationEntity != null) {
                         Long attrGroupId = attrAttrgroupRelationEntity.getAttrGroupId();
 
                         AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(attrGroupId);
@@ -364,5 +377,25 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
 
         return new PageUtils(page);
+    }
+
+    /**
+     * 返回 attrIds 中全部的 可用于检索的 属性id
+     * 用于搜索页展示
+     */
+    @Override
+    public List<Long> selectSearchAttrs(List<Long> attrIds) {
+        // select * from attr where attr_in and search_trpe = 1
+
+        // 应该写一个批量操作 这里不想写 SQL
+        return attrIds.stream().filter(attrId -> {
+            AttrEntity attrEntity = getById(attrId);
+            if (attrEntity == null) return false;
+            Integer searchType = attrEntity.getSearchType();
+
+            //`search_type` tinyint(4) DEFAULT NULL COMMENT '是否需要检索[0-不需要，1-需要]',
+            return searchType == 1;
+        }).collect(Collectors.toList());
+
     }
 }

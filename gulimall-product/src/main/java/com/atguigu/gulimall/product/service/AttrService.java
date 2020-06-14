@@ -19,6 +19,8 @@ import java.util.Map;
 public interface AttrService extends IService<AttrEntity> {
 
 
+    List<Long> selectSearchAttrs(List<Long> attrIds);
+
     enum AttrType{
         /**
          * 属性类别，销售属性

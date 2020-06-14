@@ -2,6 +2,7 @@ package com.atguigu.gulimall.ware.service.impl;
 
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.ware.feign.ProductFeignService;
+import com.atguigu.gulimall.ware.vo.SkuHasStockVo;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -9,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -22,7 +25,17 @@ import com.atguigu.gulimall.ware.entity.WareSkuEntity;
 import com.atguigu.gulimall.ware.service.WareSkuService;
 import org.springframework.transaction.annotation.Transactional;
 
-
+/**
+ * CREATE TABLE `wms_ware_sku` (
+ * `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+ * `sku_id` bigint(20) DEFAULT NULL COMMENT 'sku_id',
+ * `ware_id` bigint(20) DEFAULT NULL COMMENT '仓库id',
+ * `stock` int(11) DEFAULT NULL COMMENT '库存数',
+ * `sku_name` varchar(200) DEFAULT NULL COMMENT 'sku_name',
+ * `stock_locked` int(11) DEFAULT NULL COMMENT '锁定库存',
+ * PRIMARY KEY (`id`)
+ * ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='商品库存'
+ */
 @Service("wareSkuService")
 public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> implements WareSkuService {
     private final static Logger LOGGER = LoggerFactory.getLogger(WareSkuServiceImpl.class);
@@ -116,6 +129,42 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
             this.update(updateWrapper);
         }
+    }
+
+    /**
+     * 是否有库存
+     * *    `sku_id` bigint(20) DEFAULT NULL COMMENT 'sku_id',
+     * *    `ware_id` bigint(20) DEFAULT NULL COMMENT '仓库id',
+     * *    `stock` int(11) DEFAULT NULL COMMENT '库存数',
+     *
+     * @param skuIds sku ids
+     * @return skuHasStockVos
+     */
+    @Override
+    public List<SkuHasStockVo> getSkuHasStock(List<Long> skuIds) {
+
+        return skuIds.stream().map(skuId -> {
+            SkuHasStockVo skuHasStockVo = new SkuHasStockVo();
+
+            QueryWrapper<WareSkuEntity> skuHasStockVoQueryWrapper = new QueryWrapper<>();
+            skuHasStockVoQueryWrapper.eq("sku_id", skuId);
+            List<WareSkuEntity> skuEntityList = this.list(skuHasStockVoQueryWrapper);
+            int stockSum = skuEntityList.stream().mapToInt(wareSkuEntity -> {
+                Integer stock = wareSkuEntity.getStock();
+                Integer stockLocked = wareSkuEntity.getStockLocked();
+
+                if (stock == null) stock = 0;
+                if (stockLocked == null) stockLocked = 0;
+
+                int s = stock - stockLocked;
+                return Math.max(s, 0);
+            }).sum();
+
+
+            skuHasStockVo.setSkuId(skuId);
+            skuHasStockVo.setHasStock(stockSum > 0);
+            return skuHasStockVo;
+        }).collect(Collectors.toList());
 
 
     }
