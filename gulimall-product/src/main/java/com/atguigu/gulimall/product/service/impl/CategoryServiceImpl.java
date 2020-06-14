@@ -2,6 +2,7 @@ package com.atguigu.gulimall.product.service.impl;
 
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
+import com.atguigu.gulimall.product.vo.Catelog2Vo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -287,6 +288,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     /**
      * 级联更新
+     *
      * @param category
      * @return
      */
@@ -296,14 +298,60 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         LOGGER.info("category = {}", category);
         String name = category.getName();
         LOGGER.info("name = {}", name);
-        if(!StringUtils.isEmpty(name)){
+        if (!StringUtils.isEmpty(name)) {
             Long catId = category.getCatId();
-            categoryBrandRelationService.updateCategory(catId,name);
+            categoryBrandRelationService.updateCategory(catId, name);
         }
 
         // 更新自己
         this.updateById(category);
 
         return true;
+    }
+
+    @Override
+    public List<CategoryEntity> getLeaveOneCategoris() {
+        LOGGER.info("查询一级分类");
+
+        QueryWrapper<CategoryEntity> queryWrapper = new QueryWrapper<>();
+
+        queryWrapper.eq("parent_cid", 0); //parentCid
+
+        return list(queryWrapper);
+
+    }
+
+    @Override
+    public Map<String, List<Catelog2Vo>> getCatelogJson() {
+
+        // 一级分类
+        List<CategoryEntity> leaveOneCategoris = getLeaveOneCategoris();
+
+        return leaveOneCategoris.stream().collect(Collectors.toMap(
+                c -> c.getCatId().toString(),
+                c -> {
+                    Long catId = c.getCatId();
+                    List<CategoryEntity> catelog2List = list(new QueryWrapper<CategoryEntity>().eq("parent_cid", catId));
+                    List<Catelog2Vo> catelog2VoList = null;
+                    if (catelog2List != null) {
+                        catelog2VoList = catelog2List.stream().map(c2 -> {
+                            Long c2Id = c2.getCatId();
+
+                            List<CategoryEntity> catelog3List = list(new QueryWrapper<CategoryEntity>().eq("parent_cid", c2Id));
+                            List<Catelog2Vo.Catalog3Vo> catalog3VoList = null;
+                            if (catelog3List != null) {
+                                catalog3VoList = catelog3List.stream().map(c3 -> new Catelog2Vo.Catalog3Vo(
+                                        c2.getCatId().toString(), c3.getCatId().toString(), c3.getName()
+                                )).collect(Collectors.toList());
+                            }
+
+                            return new Catelog2Vo(c.getCatId().toString(), catalog3VoList, c2Id.toString(), c2.getName());
+                        }).collect(Collectors.toList());
+                    }
+
+                    return catelog2VoList;
+                }
+        ));
+
     }
 }

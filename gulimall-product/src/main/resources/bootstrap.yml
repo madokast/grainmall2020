@@ -13,5 +13,7 @@ spring:
     name: gulimall-product
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
+  thymeleaf:
+    cache: false
 server:
   port: 35200

@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.product.service;
 
 import com.atguigu.common.utils.R;
+import com.atguigu.gulimall.product.vo.Catelog2Vo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.gulimall.product.entity.CategoryEntity;
@@ -27,5 +28,9 @@ public interface CategoryService extends IService<CategoryEntity> {
 
     // 级联更新
     boolean updateCascade(CategoryEntity category);
+
+    List<CategoryEntity> getLeaveOneCategoris();
+
+    Map<String, List<Catelog2Vo>> getCatelogJson();
 }
 
