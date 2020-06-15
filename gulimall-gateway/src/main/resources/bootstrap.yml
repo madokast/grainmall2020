@@ -50,6 +50,10 @@ spring:
             - Path=/api/**
           filters:
             - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}
+        - id: gulimall-host
+          uri: lb://gulimall-product
+          predicates:
+            - Host=**.gulimall.com
 
 # 前端发送请求是 http://192.168.2.13:20088/api/captcha.jpg
 # renren-fast 需要的路径是 http://192.168.2.13:28080/renren-fast/captcha.jpg
@@ -67,4 +71,4 @@ spring:
 #            - Query=url,qq
 server:
   port: 20088
-debug: true
+debug: false

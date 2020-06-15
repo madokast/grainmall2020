@@ -311,7 +311,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Override
     public List<CategoryEntity> getLeaveOneCategoris() {
-        LOGGER.info("查询一级分类");
+        //LOGGER.info("查询一级分类");
 
         QueryWrapper<CategoryEntity> queryWrapper = new QueryWrapper<>();
 
@@ -321,23 +321,31 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     }
 
+    /**
+     * 2020年6月15日 优化
+     *
+     * @return Catelog2Vos map
+     */
     @Override
     public Map<String, List<Catelog2Vo>> getCatelogJson() {
 
+        Map<Long, List<CategoryEntity>> CategoryEntityGroupByParentCid =
+                list().stream().collect(Collectors.groupingBy(CategoryEntity::getParentCid));
+
         // 一级分类
-        List<CategoryEntity> leaveOneCategoris = getLeaveOneCategoris();
+        List<CategoryEntity> leaveOneCategoris = CategoryEntityGroupByParentCid.get(0L);
 
         return leaveOneCategoris.stream().collect(Collectors.toMap(
                 c -> c.getCatId().toString(),
                 c -> {
                     Long catId = c.getCatId();
-                    List<CategoryEntity> catelog2List = list(new QueryWrapper<CategoryEntity>().eq("parent_cid", catId));
+                    List<CategoryEntity> catelog2List = CategoryEntityGroupByParentCid.get(catId);
                     List<Catelog2Vo> catelog2VoList = null;
                     if (catelog2List != null) {
                         catelog2VoList = catelog2List.stream().map(c2 -> {
                             Long c2Id = c2.getCatId();
 
-                            List<CategoryEntity> catelog3List = list(new QueryWrapper<CategoryEntity>().eq("parent_cid", c2Id));
+                            List<CategoryEntity> catelog3List = CategoryEntityGroupByParentCid.get(c2Id);
                             List<Catelog2Vo.Catalog3Vo> catalog3VoList = null;
                             if (catelog3List != null) {
                                 catalog3VoList = catelog3List.stream().map(c3 -> new Catelog2Vo.Catalog3Vo(
