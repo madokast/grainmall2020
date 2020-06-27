@@ -38,8 +38,6 @@ public class RedisTest {
 //        stringRedisTemplate.delete()
 
 //        stringRedisTemplate.opsForValue().setIfAbsent()
-
-
     }
 
 

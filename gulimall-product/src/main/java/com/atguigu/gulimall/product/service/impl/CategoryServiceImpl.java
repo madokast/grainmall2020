@@ -6,6 +6,7 @@ import com.atguigu.gulimall.product.vo.Catelog2Vo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,6 +24,25 @@ import com.atguigu.gulimall.product.service.CategoryService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+/**
+ * listWithTree 查出所有分类，以树形结构组装
+ * 调用 list();
+ * save 保存节点
+ * super.save()
+ * removeMenuByIds 删除节点 级联删除 逻辑删除
+ * removeByIds(idList);
+ * updateById 修改
+ * super.updateById
+ * findCatelogIdPath 找出 catelogId 所属三级分类的完整路径
+ * getById
+ * updateCascade 级联更新
+ * updateById(category);
+ * categoryBrandRelationService.updateCategory(catId, name)
+ * getLeaveOneCategoris 查询一级分类
+ * queryWrapper.eq("parent_cid", 0);
+ * getCatelogJson
+ * 调用 list()
+ */
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
@@ -288,9 +308,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     /**
      * 级联更新
-     *
-     * @param category
-     * @return
      */
     @Override
     @Transactional
@@ -309,6 +326,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return true;
     }
 
+    /**
+     * 查询一级分类
+     *
+     * @return 查询一级分类
+     */
     @Override
     public List<CategoryEntity> getLeaveOneCategoris() {
         //LOGGER.info("查询一级分类");
@@ -327,6 +349,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * @return Catelog2Vos map
      */
     @Override
+    @Cacheable(cacheNames = {"catelog", "product"}, key = "#root.method.name")
     public Map<String, List<Catelog2Vo>> getCatelogJson() {
 
         Map<Long, List<CategoryEntity>> CategoryEntityGroupByParentCid =
@@ -362,4 +385,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         ));
 
     }
+
+
 }

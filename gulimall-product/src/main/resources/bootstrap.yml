@@ -18,6 +18,13 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
   thymeleaf:
     cache: false
+  cache:
+    type: redis
+    redis:
+      time-to-live: 5000
+      key-prefix: CACHE_
+      use-key-prefix: true
+      cache-null-values: true
 server:
   port: 35200
 
