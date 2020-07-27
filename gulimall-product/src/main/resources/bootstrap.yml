@@ -22,7 +22,6 @@ spring:
     type: redis
     redis:
       time-to-live: 5000
-      key-prefix: CACHE_
       use-key-prefix: true
       cache-null-values: true
 server:

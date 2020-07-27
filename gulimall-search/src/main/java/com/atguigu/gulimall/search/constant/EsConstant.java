@@ -18,81 +18,9 @@ public class EsConstant {
     private final static Logger LOGGER = LoggerFactory.getLogger(EsConstant.class);
 
 
-    /**
-     * index 结构：
-     * <pre>
-     *     PUT product
-     * {
-     *   "mappings": {
-     *     "properties": {
-     *       "skuId": {
-     *         "type": "long"
-     *       },
-     *       "spuId": {
-     *         "type": "keyword"
-     *       },
-     *       "skuTitle": {
-     *         "type": "text",
-     *         "analyzer": "ik_smart"
-     *       },
-     *       "skuPrice": {
-     *         "type": "keyword"
-     *       },
-     *       "skuImg": {
-     *         "type": "keyword",
-     *         "index": false,
-     *         "doc_values": false
-     *       },
-     *       "saleCount": {
-     *         "type": "long"
-     *       },
-     *       "hasStock": {
-     *         "type": "boolean"
-     *       },
-     *       "hotScore": {
-     *         "type": "long"
-     *       },
-     *       "brandId": {
-     *         "type": "long"
-     *       },
-     *       "catalogId": {
-     *         "type": "long"
-     *       },
-     *       "brandName": {
-     *         "type": "keyword",
-     *         "index": false,
-     *         "doc_values": false
-     *       },
-     *       "brandImg": {
-     *         "type": "keyword",
-     *         "index": false,
-     *         "doc_values": false
-     *       },
-     *       "catalogName": {
-     *         "type": "keyword",
-     *         "index": false,
-     *         "doc_values": false
-     *       },
-     *       "attrs": {
-     *         "type": "nested",
-     *         "properties": {
-     *           "attrId": {
-     *             "type": "long"
-     *           },
-     *           "attrName": {
-     *             "type": "keyword",
-     *             "index": false,
-     *             "doc_values": false
-     *           },
-     *           "attrValue": {
-     *             "type": "keyword"
-     *           }
-     *         }
-     *       }
-     *     }
-     *   }
-     * }
-     * </pre>
-     */
-    public static final String PRODUCT_INDEX = "product"; // sku 数据在 es 中的 index
+    // 2020年7月27日  修改
+    public static final String PRODUCT_INDEX = "gulimall_product"; // sku 数据在 es 中的 index
+
+    // 每页显示数
+    public static final Integer PAGE_SIZE = 4;
 }

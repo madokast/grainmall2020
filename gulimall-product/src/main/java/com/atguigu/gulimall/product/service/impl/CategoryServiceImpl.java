@@ -349,7 +349,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * @return Catelog2Vos map
      */
     @Override
-    @Cacheable(cacheNames = {"catelog", "product"}, key = "#root.method.name")
+    @Cacheable(cacheNames = {"catelog"}, key = "'catelogJson'")
     public Map<String, List<Catelog2Vo>> getCatelogJson() {
 
         Map<Long, List<CategoryEntity>> CategoryEntityGroupByParentCid =

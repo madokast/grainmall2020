@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>谷粒商城</title>
     <link rel="stylesheet" href="/static/index/css/swiper-3.4.2.min.css">
     <link rel="stylesheet" href="/static/index/css/GL.css">
     <script src="/static/index/js/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
@@ -115,7 +115,8 @@
             <input id="searchText" type="text" placeholder=""/>
             <span style="background: url('/static/index/img/img_12.png') 0 -1px;"></span>
             <!--<button><i class="glyphicon"></i></button>-->
-            <a href="#"><img src="/static/index/img/img_09.png" onclick="search()"/></a>
+<!--            onclick="search()"-->
+            <a href="javascript:search();"><img src="/static/index/img/img_09.png"/></a>
         </div>
         <div class="header_ico">
             <div class="header_gw">
@@ -611,7 +612,7 @@
 <script type="text/javascript">
     function search() {
         var keyword = $("#searchText").val()
-        window.location.href = "http://search.gulimall.com/search.html?keyword=" + keyword;
+        window.location.href = "http://search.gulimall.com/list.html?keyword=" + keyword;
     }
 
 </script>
